@@ -1,0 +1,50 @@
+<div class="game-container">
+  <div class="head-game">
+    <h2>scores: {{ gameLogicService.scores }}</h2>
+    <button
+      class="new-game"
+      *ngIf="gameLogicService.theEnd"
+      (click)="onResetGame()"
+    >
+      <span>New Game</span>
+    </button>
+  </div>
+  <div class="grid-container">
+    <div class="grid-row">
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+    </div>
+    <div class="grid-row">
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+    </div>
+    <div class="grid-row">
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+    </div>
+    <div class="grid-row">
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+      <div class="grid-cell"></div>
+    </div>
+    <div class="items">
+      <div
+        *ngFor="let item of gameStorageService.items"
+        class="item"
+        [ngStyle]="getStyles(item)"
+      >
+        <div class="item-title">{{ item.value }}</div>
+      </div>
+    </div>
+    <div class="overlay" *ngIf="gameLogicService.theEnd">
+      <div class="overlay-text">The End</div>
+    </div>
+  </div>
+</div>

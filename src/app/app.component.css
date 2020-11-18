@@ -1,3 +1,4 @@
-p {
-  font-family: Lato;
+.container {
+  width: 700px;
+  margin: 0 auto;
 }
