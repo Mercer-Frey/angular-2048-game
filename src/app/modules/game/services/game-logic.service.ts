@@ -1,11 +1,11 @@
-import { Item } from "../models/item";
-import { GameStorageService } from "./game-storage.service";
-import { Injectable } from "@angular/core";
+import { Item } from '../models/item';
+import { GameStorageService } from './game-storage.service';
+import { Injectable } from '@angular/core';
 
 type CellPosition = { row: number; col: number };
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root',
 })
 export class GameLogicService {
   private size = 4;
@@ -14,33 +14,36 @@ export class GameLogicService {
   scores = 0;
   theEnd = false;
 
+  quantityNewItems = [1, 2];
+  valuesNewItems = [2, 4];
+
   constructor(private gameStorageService: GameStorageService) {
     this.generateAvailableCells();
     this.generateItems();
   }
 
   private get emptyCells(): CellPosition[] {
-    return this.availableCells.filter(cell => {
+    return this.availableCells.filter((cell) => {
       return !this.gameStorageService.items.some(
-        item => item.col === cell.col && item.row === cell.row
+        (item) => item.col === cell.col && item.row === cell.row
       );
     });
   }
 
   onArrowRight(): void {
-    this.move("row", "col", true);
+    this.move('row', 'col', true);
   }
   onArrowLeft(): void {
     this.move();
   }
   onArrowDown(): void {
-    this.move("col", "row", true);
+    this.move('col', 'row', true);
   }
   onArrowUp(): void {
-    this.move("col", "row", false);
+    this.move('col', 'row', false);
   }
 
-  resetGame() {
+  resetGame(): void {
     this.scores = 0;
     this.gameStorageService.items = [];
     this.theEnd = false;
@@ -48,8 +51,8 @@ export class GameLogicService {
   }
 
   private move(
-    dimX: "col" | "row" = "row",
-    dimY: "col" | "row" = "col",
+    dimX: 'col' | 'row' = 'row',
+    dimY: 'col' | 'row' = 'col',
     reverse: boolean = false
   ): void {
     if (this.theEnd || !this.canImove(dimX, false, reverse)) {
@@ -60,8 +63,8 @@ export class GameLogicService {
     const mergedItems: Item[] = [];
 
     for (let x = 1; x <= this.size; x++) {
-      const items = this.gameStorageService.items
-        .filter(item => item[dimX] === x)
+      const items: Item[] = this.gameStorageService.items
+        .filter((item) => item[dimX] === x)
         .sort((a, b) => a[dimY] - b[dimY]);
       if (reverse) {
         items.reverse();
@@ -81,7 +84,7 @@ export class GameLogicService {
             mergedItems.push({
               value: item.value * 2,
               [dimX]: x,
-              [dimY]: y
+              [dimY]: y,
             } as any);
             merged = true;
           }
@@ -95,7 +98,7 @@ export class GameLogicService {
     this.scores += mergedItems.reduce((acc, item) => acc + item.value, 0);
     this.gameStorageService.items = [
       ...this.gameStorageService.items,
-      ...mergedItems
+      ...mergedItems,
     ];
 
     this.generateItems();
@@ -104,38 +107,34 @@ export class GameLogicService {
 
   private clearDeletedItems(): void {
     this.gameStorageService.items = this.gameStorageService.items.filter(
-      item => !item.isOnDelete
+      (item) => !item.isOnDelete
     );
   }
 
-  private generateItems(quantity: number = 2): void {
+  private generateItems(): void {
     const positions: CellPosition[] = this.emptyCells
       .sort(() => 0.5 - Math.random())
-      .slice(0, quantity);
+      .slice(0, this.quantityNewItems[Math.round(Math.random())]);
 
     this.gameStorageService.items = [
       ...this.gameStorageService.items,
-      ...positions.map<Item>(position => ({
-        value: 2,
+      ...positions.map<Item>((position) => ({
+        value: this.valuesNewItems[Math.round(Math.random())],
         col: position.col,
-        row: position.row
-      }))
+        row: position.row,
+      })),
     ];
   }
 
-  private isTheEnd(): boolean {
-    return !this.canImove("row") && !this.canImove("col");
-  }
-
   private canImove(
-    dimX: "row" | "col",
+    dimX: 'row' | 'col',
     skipDir = true,
     forward = false
   ): boolean {
-    const dimY = dimX === "row" ? "col" : "row";
+    const dimY = dimX === 'row' ? 'col' : 'row';
     for (let x = 1; x <= this.size; x++) {
       const items = this.gameStorageService.items
-        .filter(item => !item.isOnDelete && item[dimX] === x)
+        .filter((item) => !item.isOnDelete && item[dimX] === x)
         .sort((a, b) => a[dimY] - b[dimY]);
 
       if (items.length !== this.size) {
@@ -152,7 +151,7 @@ export class GameLogicService {
           lockedPositions.push(i);
         }
 
-        if (items.find(item => !lockedPositions.includes(item[dimY]))) {
+        if (items.find((item) => !lockedPositions.includes(item[dimY]))) {
           return true;
         }
       }
@@ -166,6 +165,10 @@ export class GameLogicService {
       }
     }
     return false;
+  }
+
+  private isTheEnd(): boolean {
+    return !this.canImove('row') && !this.canImove('col');
   }
 
   private generateAvailableCells(): void {
